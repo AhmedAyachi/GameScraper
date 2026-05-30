@@ -4,13 +4,16 @@
   "description": "returns true if a number is power of another number",
   "main": "index.js",
   "type": "commonjs",
-  "duration": "",
+  "bin": {
+    "gamescraper": "./index.js"
+  },
   "scripts": {
     "start": "node --experimental-json-modules index.js"
   },
   "author": "Ahmed Ayachi",
   "license": "MIT",
   "dependencies": {
-    "puppeteer": "^25.1.0"
+    "puppeteer": "^25.1.0",
+    "terminal-link": "^5.0.0"
   }
 }

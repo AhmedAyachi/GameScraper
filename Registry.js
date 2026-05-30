@@ -2,6 +2,14 @@
 
 module.exports=[
     {
+        name:"Dopamine",
+        url:"https://dopamine.tn/",
+    },
+    {
+        name:"Tokyo Stores",
+        url:"https://tokyostores.tn/",
+    },
+    {
         name:"Game Tek",
         url:"https://gametek.tn/",
     },

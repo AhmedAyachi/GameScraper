@@ -2,11 +2,10 @@
 const Path=require("path");
 
 module.exports=async (browser,fileName)=>{
-    const sourceName=Path.basename(fileName).replace(".js","");
+    const sourceName=fileName&&Path.basename(fileName).replace(".js","");
     const source=require("../Registry").find(it=>{
         return it.name.replace(/ /g,"")===sourceName;
     });
-    const {url}=source;
     browser.newPage=(()=>{
         const newPage=browser.newPage.bind(browser);
         return async (url,options)=>{

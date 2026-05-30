@@ -9,7 +9,7 @@ module.exports=async (browser,query)=>{
     await webpage.locator("header input[class*=search]").fill(query);
     await webpage.locator("header button[type=submit]").click();
     await webpage.waitForNavigation({waitUntil:"domcontentloaded"});
-    const gameElHandles=await webpage.$$("#products .item[class*=product]");
+    const gameElHandles=await webpage.$$(".product-container");
     const results=[];
     for(const elHandle of gameElHandles){
         const title=await elHandle.evaluate(it=>it.querySelector("*[class*=product-title] a").textContent);
@@ -17,7 +17,7 @@ module.exports=async (browser,query)=>{
             return it.querySelector("*[class*=product-price] .price").textContent;
         });
         results.push({
-            title:title.trim(),
+            title:title,
             price:priceText.trim(),
         });
     }

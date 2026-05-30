@@ -1,6 +1,5 @@
 
-const scrapper=require("./Scrapper");
-const simplifyString=require("../Functions/simplifyString");
+const scrapper=require("../Scripts/Scrapper");
 
 module.exports=async (browser,query)=>{
     const {source}=await scrapper(browser,__filename);
@@ -12,15 +11,13 @@ module.exports=async (browser,query)=>{
     const results=[];
     for(const elHandle of gameElHandles){
         const title=await elHandle.evaluate(it=>it.querySelector("*[class*=product-title] a").textContent);
-        if(simplifyString(title).includes(query)){
-            const priceText=await elHandle.evaluate(it=>{
-                return it.querySelector("*[class*=product-price] .price").textContent;
-            });
-            results.push({
-                title:title,
-                price:priceText.trim(),
-            });
-        }
+        const priceText=await elHandle.evaluate(it=>{
+            return it.querySelector("*[class*=product-price] .price").textContent;
+        });
+        results.push({
+            title:title.trim(),
+            price:priceText.trim(),
+        });
     }
     return results;
 }
