@@ -1,0 +1,24 @@
+
+const scrapper=require("./Scrapper");
+const simplifyString=require("../Functions/simplifyString");
+
+module.exports=async (browser,query)=>{
+    const {source}=await scrapper(browser,__filename);
+    const webpage=await browser.newPage(source.url);
+    await webpage.locator("#search_widget input").fill(query);
+    await webpage.locator("#search_widget button[type=submit]").click();
+    await webpage.waitForNavigation({waitUntil:"domcontentloaded"});
+    const gameElHandles=await webpage.$$("section#products .js-product.product");
+    const results=[];
+    for(const elHandle of gameElHandles){
+        const title=await elHandle.evaluate(it=>it.querySelector(".name a").textContent);
+        if(simplifyString(title).includes(query)){
+            const priceText=await elHandle.evaluate(it=>it.querySelector(".price").textContent);
+            results.push({
+                title:title.replace(/ \-\.\.\.|\.\.\./gi,""),
+                price:(it=>it.substring(0,it.indexOf("\n")))(priceText.trim()),
+            });
+        }
+    }
+    return results;
+}
