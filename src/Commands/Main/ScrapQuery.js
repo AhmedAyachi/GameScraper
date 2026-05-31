@@ -4,9 +4,10 @@ const fetchFromCache=require("./FetchFromCache");
 const scrapSources=require("./ScrapSources");
 const sources=require("./Registry");
 const terminalLink=require("terminal-link").default;
+const simplifyString=require("../../Functions/simplifyString");
 
 module.exports=(args)=>new Promise(async (resolve,reject)=>{
-    const query=args[0];
+    const query=simplifyString(args[0]);
     const skipCache=args.some(it=>it==="--skip-cache");
     const results=(!skipCache)&&(await fetchFromCache(query));
     if(results) resolve(results);
