@@ -24,9 +24,10 @@ module.exports=(args)=>new Promise(async (resolve,reject)=>{
     }));
 }).then(data=>{
     if(data){
-        const {offers,results}=data;
+        const {gameTitle,offers,results}=data;
         if(Array.isArray(offers)&&offers.length){
-            console.log("\nPrices according to",logger.yellow("jeuxvideo.com")+":");
+            console.log("\nPrices according to",logger.green("jeuxvideo.com")+":");
+            console.log("title:",logger.yellow(gameTitle));
             console.table(offers,["vendor","platform","price"]);           
         }
         if(Array.isArray(results)&&results.length){
@@ -41,10 +42,6 @@ module.exports=(args)=>new Promise(async (resolve,reject)=>{
                     });
                 })(),
             })),["sourceName","title","price"]);
-        } else {
-            console.log("No results found.");
-        }
-    } else {
-        console.log("No data found.");
-    }
+        } else console.log("No local offers found.");
+    } else console.log("No data found.");
 });

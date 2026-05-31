@@ -6,12 +6,12 @@ const Path=require("node:path");
 const FileSystem=require("node:fs");
 const isQueryMatch=require("../../Functions/isQueryMatch");
 const simplifyString=require("../../Functions/simplifyString");
-const scrapActualPrice=require("./ScrapActualPrice")
+const scrapForDetails=require("./ScrapForDetails");
 
 
 module.exports=async (query,options)=>{
     const {withGUI,cachePath}=options;
-    loading("Scraping sources...");
+    let scrapedSourceCount=0;
     const browser=await puppeteer.launch({
         devtools:withGUI,
         headless:!withGUI,
@@ -27,26 +27,25 @@ module.exports=async (query,options)=>{
             "--window-size=1920,1080",
         ],
     });
-    const offers=await scrapActualPrice(browser,query);
+    const {gameTitle,offers}=await scrapForDetails(browser,query)||{};
     const allResults=[];
     for(const source of sources){
+        loading(`Scraping sources ${scrapedSourceCount}/${sources.length}...`);
         try {
             const {name}=source;
             const scrapper=require(`./Sources/${name.trim().replace(/ /g,"")}`);
-            const sourceResults=await scrapper(browser,query);
+            const sourceResults=await scrapper(browser,query).catch(()=>scrapper(browser,query));
             sourceResults.forEach(result=>{
                 result.sourceName=name;
             });
             allResults.push(...sourceResults);
         } catch(error){
             loading();
-            if(withGUI){
-                console.error(error);
-            } else {
-                console.error(`Error while scraping ${source.url}.`);
-            }
+            if(withGUI) console.error(error);
+            else console.error(`Error while scraping ${source.url}.`);
             loading(true);
         }
+        scrapedSourceCount++;
     }
     if(!withGUI) await browser.close();
     loading();
@@ -62,12 +61,12 @@ module.exports=async (query,options)=>{
             results.push(result);
         }
     });
-    if(results.length||offers.length) return new Promise((resolve,reject)=>{
+    if(results.length||offers?.length) return new Promise((resolve,reject)=>{
         results.forEach(result=>{
             result.price=result.price.replace(",000","");
         });
         results.sort((b,a)=>parseFloat(a.price)<parseFloat(b.price)?1:-1);
-        const data={offers,results};        
+        const data={gameTitle,offers,results};        
         FileSystem.writeFile(Path.join(cachePath,query+".json"),JSON.stringify({
             query,data,
             instant:Date.now(),

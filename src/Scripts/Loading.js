@@ -13,6 +13,7 @@ module.exports=(message=!interval)=>{
         },80);
     } else {
         interval=null;
-        process.stdout.write("\x1b[1K\n");
+        process.stdout.clearLine(0);
+        process.stdout.cursorTo(0);
     }
 }
