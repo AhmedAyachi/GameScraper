@@ -1,20 +1,33 @@
 
 const sources=require("./Registry");
 const puppeteer=require("puppeteer");
-const loading=require("../../Scripts/Loading");
+const {loading}=require("../../Scripts");
+const Path=require("node:path");
 const FileSystem=require("node:fs");
 const isQueryMatch=require("../../Functions/isQueryMatch");
 const simplifyString=require("../../Functions/simplifyString");
-const scrapActualPrice=require("./ScrapActualPrice");
-const Path=require("node:path");
+const scrapActualPrice=require("./ScrapActualPrice")
 
 
 module.exports=async (query,options)=>{
-    const {isTest}=options;
-    query=simplifyString(query);
-    loading("Scrapping sources...");
-    const browser=await puppeteer.launch({devtools:isTest});
-    //await scrapActualPrice(browser,query);
+    const {withGUI,cachePath}=options;
+    loading("Scraping sources...");
+    const browser=await puppeteer.launch({
+        devtools:withGUI,
+        headless:!withGUI,
+        args:[
+            "--no-sandbox",
+            "--disable-setuid-sandbox",
+            "--disable-dev-shm-usage", // Prevents crashes in Docker/low-RAM envs
+            "--disable-accelerated-2d-canvas",
+            "--disable-gpu",           // Skips hardware acceleration overhead
+            "--no-first-run",
+            "--no-zygote",
+            "--single-process",      // Saves significant memory (use with caution)
+            "--window-size=1920,1080",
+        ],
+    });
+    const offers=await scrapActualPrice(browser,query);
     const allResults=[];
     for(const source of sources){
         try {
@@ -27,7 +40,7 @@ module.exports=async (query,options)=>{
             allResults.push(...sourceResults);
         } catch(error){
             loading();
-            if(isTest){
+            if(withGUI){
                 console.error(error);
             } else {
                 console.error(`Error while scraping ${source.url}.`);
@@ -35,7 +48,7 @@ module.exports=async (query,options)=>{
             loading(true);
         }
     }
-    if(!isTest) await browser.close();
+    if(!withGUI) await browser.close();
     loading();
     const results=[];
     const includeControllers=query.includes("manet");
@@ -49,18 +62,18 @@ module.exports=async (query,options)=>{
             results.push(result);
         }
     });
-    if(results.length) return new Promise((resolve,reject)=>{
+    if(results.length||offers.length) return new Promise((resolve,reject)=>{
         results.forEach(result=>{
             result.price=result.price.replace(",000","");
         });
         results.sort((b,a)=>parseFloat(a.price)<parseFloat(b.price)?1:-1);
-        FileSystem.writeFile(Path.resolve(__dirname,"./Cache",query+".json"),JSON.stringify({
-            query,
+        const data={offers,results};        
+        FileSystem.writeFile(Path.join(cachePath,query+".json"),JSON.stringify({
+            query,data,
             instant:Date.now(),
-            result:results,
         }),(error)=>{
             if(error) reject(error);
-            else resolve(results);
+            else resolve(data);
         });
     });
     else return null;

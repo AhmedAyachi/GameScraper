@@ -4,9 +4,7 @@ const FileSystem=require("node:fs");
 const Path=require("node:path");
 const maxDuration=24*60*60*1000;//24 hours
 
-module.exports=async (query)=>{
-    const cachePath=Path.resolve(__dirname,"./Cache");
-    if(!FileSystem.existsSync(cachePath)) FileSystem.mkdirSync(cachePath);
+module.exports=async (query,{cachePath})=>{
     const cacheEntries=FileSystem.readdirSync(cachePath,{withFileTypes:true});
     const targetCacheName=query+".json";
     let queryEntryPath;
@@ -19,7 +17,7 @@ module.exports=async (query)=>{
     });
     if(queryEntryPath){
         const content=FileSystem.readFileSync(queryEntryPath,"utf-8");
-        const {result}=JSON.parse(content);
-        return result;
+        const {data}=JSON.parse(content);
+        return data;
     } else return null;
 }
