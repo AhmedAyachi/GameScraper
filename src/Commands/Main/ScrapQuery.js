@@ -1,14 +1,17 @@
 
 
-const fetchFromCache=require("./fetchFromCache");
+const fetchFromCache=require("./FetchFromCache");
 const scrapSources=require("./ScrapSources");
-const sources=require("../../Registry");
+const sources=require("./Registry");
 const terminalLink=require("terminal-link").default;
 
-module.exports=(query,options)=>new Promise(async (resolve,reject)=>{
+module.exports=(args)=>new Promise(async (resolve,reject)=>{
+    const query=args[0];
     const results=await fetchFromCache(query);
     if(results) resolve(results);
-    else resolve(scrapSources(query,options));
+    else resolve(scrapSources(query,{
+        isTest:args.some(arg=>arg==="-t"),
+    }));
 }).then(results=>{
     if(Array.isArray(results)&&results.length) console.table(results.map(it=>({
         ...it,

@@ -1,11 +1,11 @@
 
-const sources=require("../../Registry");
+const sources=require("./Registry");
 const puppeteer=require("puppeteer");
-const loading=require("../Loading");
+const loading=require("../../Scripts/Loading");
 const FileSystem=require("node:fs");
 const isQueryMatch=require("../../Functions/isQueryMatch");
 const simplifyString=require("../../Functions/simplifyString");
-const scrapActualPrice=require("../scrapActualPrice");
+const scrapActualPrice=require("./ScrapActualPrice");
 const Path=require("node:path");
 
 
@@ -14,12 +14,12 @@ module.exports=async (query,options)=>{
     query=simplifyString(query);
     loading("Scrapping sources...");
     const browser=await puppeteer.launch({devtools:isTest});
-    await scrapActualPrice(browser,query);
+    //await scrapActualPrice(browser,query);
     const allResults=[];
     for(const source of sources){
         try {
             const {name}=source;
-            const scrapper=require(`../../Sources/${name.trim().replace(/ /g,"")}`);
+            const scrapper=require(`./Sources/${name.trim().replace(/ /g,"")}`);
             const sourceResults=await scrapper(browser,query);
             sourceResults.forEach(result=>{
                 result.sourceName=name;

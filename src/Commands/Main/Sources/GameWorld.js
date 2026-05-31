@@ -1,5 +1,5 @@
 
-const scrapper=require("../Scripts/Scrapper");
+const scrapper=require("../Scrapper");
 
 module.exports=async (browser,query)=>{
     const {source}=await scrapper(browser,__filename);
