@@ -63,9 +63,7 @@ module.exports=async (query,options)=>{
             else resolve(results);
         });
     });
-    else {
-        console.log("No results found.");
-    }
+    else return null;
 }
 
 const isExistingResult=(result,results)=>{

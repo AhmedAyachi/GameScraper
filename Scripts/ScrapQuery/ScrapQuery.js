@@ -10,7 +10,7 @@ module.exports=(query,options)=>new Promise(async (resolve,reject)=>{
     if(results) resolve(results);
     else resolve(scrapSources(query,options));
 }).then(results=>{
-    console.table(results.map(it=>({
+    if(Array.isArray(results)&&results.length) console.table(results.map(it=>({
         ...it,
         sourceName:(()=>{
             const {sourceName}=it;
@@ -20,4 +20,7 @@ module.exports=(query,options)=>new Promise(async (resolve,reject)=>{
             });
         })(),
     })),["sourceName","title","price"]);
+    else {
+        console.log("No results found.");
+    }
 });

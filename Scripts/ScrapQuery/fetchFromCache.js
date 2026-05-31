@@ -5,7 +5,9 @@ const Path=require("node:path");
 const maxDuration=24*60*60*1000;
 
 module.exports=async (query)=>{
-    const cacheEntries=FileSystem.readdirSync(Path.resolve(__dirname,"./Cache"),{withFileTypes:true});
+    const cachePath=Path.resolve(__dirname,"./Cache");
+    if(!FileSystem.existsSync(cachePath)) FileSystem.mkdirSync(cachePath);
+    const cacheEntries=FileSystem.readdirSync(cachePath,{withFileTypes:true});
     const targetCacheName=query+".json";
     const queryEntry=cacheEntries.find(it=>it.name.toLowerCase()===targetCacheName);
     if(queryEntry){
