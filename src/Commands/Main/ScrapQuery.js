@@ -7,7 +7,8 @@ const terminalLink=require("terminal-link").default;
 
 module.exports=(args)=>new Promise(async (resolve,reject)=>{
     const query=args[0];
-    const results=await fetchFromCache(query);
+    const skipCache=args.some(it=>it==="--skip-cache");
+    const results=(!skipCache)&&(await fetchFromCache(query));
     if(results) resolve(results);
     else resolve(scrapSources(query,{
         isTest:args.some(arg=>arg==="-t"),

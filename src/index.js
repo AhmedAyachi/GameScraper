@@ -12,7 +12,7 @@ new Promise((resolve,reject)=>{
     switch(cmdName){
         case "-v":
         case "--version":
-            resolve(commands.version(args));
+            resolve(commands.version());
         break;
         default:
             const command=commands[cmdName]||commands.scrapQuery;
