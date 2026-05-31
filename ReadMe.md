@@ -13,6 +13,7 @@ Open a terminal window in a location where to want to place the GameScraper fold
 2.  cd GameScraper
 3. npm install
 4. npm link
+
 And you're all set. You can now open a new terminal window and start using gamescraper.
 
 ### How to use ?
