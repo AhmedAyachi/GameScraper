@@ -8,7 +8,7 @@ module.exports=(message=!interval)=>{
         const chars=["⠋","⠙","⠹","⠸","⠼","⠴","⠦","⠧","⠇","⠏"];
         let i=0;
         interval=setInterval(()=>{
-            process.stdout.write(`\r${logger.cyan(chars[i%chars.length])} ${typeof(message)==="string"?message:""}`);
+            process.stdout.write(`\r${logger.majorColor(chars[i%chars.length])} ${typeof(message)==="string"?message:""}`);
             i++;
         },80);
     } else {

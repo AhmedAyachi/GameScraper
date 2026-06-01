@@ -27,7 +27,7 @@ module.exports=async (query,options)=>{
             "--window-size=1920,1080",
         ],
     });
-    const {gameTitle,offers}=await scrapForDetails(browser,query)||{};
+    const details=await scrapForDetails(browser,query);
     const allResults=[];
     for(const source of sources){
         loading(`Scraping sources ${scrapedSourceCount}/${sources.length}...`);
@@ -61,12 +61,12 @@ module.exports=async (query,options)=>{
             results.push(result);
         }
     });
-    if(results.length||offers?.length) return new Promise((resolve,reject)=>{
+    if(results.length) return new Promise((resolve,reject)=>{
         results.forEach(result=>{
             result.price=result.price.replace(",000","");
         });
         results.sort((b,a)=>parseFloat(a.price)<parseFloat(b.price)?1:-1);
-        const data={gameTitle,offers,results};        
+        const data={...details,results};
         FileSystem.writeFile(Path.join(cachePath,query+".json"),JSON.stringify({
             query,data,
             instant:Date.now(),
@@ -75,6 +75,7 @@ module.exports=async (query,options)=>{
             else resolve(data);
         });
     });
+    else if(details) return details;
     else return null;
 }
 

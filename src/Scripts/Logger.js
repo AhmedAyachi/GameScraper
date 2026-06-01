@@ -6,12 +6,19 @@ module.exports={
     blue:(text)=>`\x1b[0;34m${text}\x1b[0m`,
     cyan:(text)=>`\x1b[0;36m${text}\x1b[0m`,
     yellow:(text)=>`\x1b[0;33m${text}\x1b[0m`,
+    purple:(text)=>`\x1b[0;35m${text}\x1b[0m`,
     brightCyan:(text)=>`\x1b[0;96m${text}\x1b[0m`,
-    logWithSuccess:(text)=>{
-        process.stdout.write(`\x1b[32m✓\x1b[0m ${text}\n`);
+
+    brandColor:function(text){ return this.red(text) },
+    majorColor:function(text){ return this.purple(text) },
+    okColor:function(text){ return this.green(text) },
+    koColor:function(text){ return this.red(text) },
+    
+    logWithSuccess:function(text){
+        process.stdout.write(`${this.okColor("✓")} ${text}\n`);
     },
-    logWithFailure:(text)=>{
-        process.stdout.write(`\x1b[31m✗\x1b[0m ${text}\n`);
+    logWithFailure:function(text){
+        process.stdout.write(`${this.koColor("✗")} ${text}\n`);
     },
     log:(text)=>{
         process.stdout.write(text+"\n");

@@ -24,11 +24,16 @@ module.exports=(args)=>new Promise(async (resolve,reject)=>{
     }));
 }).then(data=>{
     if(data){
-        const {gameTitle,offers,results}=data;
+        const {game,offers,results}=data;
+        if(game){
+            console.log("Game details:");
+            for(const key in game){
+                console.log(key+":",logger.brandColor(game[key]));
+            }
+        }
         if(Array.isArray(offers)&&offers.length){
-            console.log("\nPrices according to",logger.green("jeuxvideo.com")+":");
-            console.log("title:",logger.yellow(gameTitle));
-            console.table(offers,["vendor","platform","price"]);           
+            console.log("\nPrices according to",logger.majorColor("jeuxvideo.com")+":");
+            console.table(offers,["vendor","platform","price"]);     
         }
         if(Array.isArray(results)&&results.length){
             console.log("\nLocal prices found:");
