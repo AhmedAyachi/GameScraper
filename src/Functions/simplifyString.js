@@ -4,18 +4,12 @@ module.exports=(str="")=>{
     str=str.trim().toLowerCase();
     let simplified="";
     for(const char of str){
-        switch(char){
-            case "ö": simplified+="o";
-                break;
-            case "é":
-            case "è": simplified+="e";
-                break;
-            case "ç": simplified+="c";
-                break;
-            case "à": simplified+="a";
-                break;
-            default: simplified+=char;
-        }
+        if("öō".includes(char)) simplified+="o";
+        else if("éè".includes(char)) simplified+="e";
+        else if("ç".includes(char)) simplified+="c";
+        else if("à".includes(char)) simplified+="a";
+        else if("\u202f\u2009\u00a0\u200a\u205f".includes(char)) simplified+=" ";
+        else simplified+=char;
     }
     return simplified;
 }

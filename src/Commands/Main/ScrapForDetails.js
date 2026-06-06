@@ -1,6 +1,7 @@
 
 const scrapper=require("./Scrapper");
 const {loading,logger}=require("../../Scripts/index");
+const {TimeoutError} = require("puppeteer");
 const baseUrl="jeuxvideo.com";
 const platforms=[
     {id:22,name:"ps5"},
@@ -13,7 +14,15 @@ module.exports=async function scrapForDetails(browser,query,options){
     await scrapper(browser);
     const webpage=await browser.newPage(`https://www.${baseUrl}/`);
     await webpage.locator("button[class*=button-cookies]").click();
-    return queryGame(webpage,query,options);
+    return queryGame(webpage,query,options).catch(error=>{
+        if(error instanceof TimeoutError) return queryGame(webpage,query,options);
+        else return Promise.reject(error);
+    }).catch(error=>{
+        loading();
+        console.error(error);
+        logger.logWithFailure("Couldn't fetch details from "+baseUrl);
+        return null;
+    });
 };
 
 const queryGame=async (webpage,query,options)=>{

@@ -19,16 +19,35 @@ module.exports=(args)=>new Promise(async (resolve,reject)=>{
     const results=(!skipCache)&&(await fetchFromCache(query,{cachePath}));
     if(results) resolve(results);
     else resolve(scrapSources(query,{
-        cachePath,
         withGUI:args.some(arg=>arg==="--gui"),
-    }));
+    }).then(data=>new Promise((resolve,reject)=>{
+        if(data){
+            FileSystem.writeFile(Path.join(cachePath,query+".json"),JSON.stringify({
+                query,data,
+                instant:Date.now(),
+            }),(error)=>{
+                if(error) reject(error);
+                else resolve(data);
+            });
+        } else resolve(data);
+    })));
 }).then(data=>{
     if(data){
         const {game,offers,results}=data;
         if(game){
             console.log("Game details:");
             for(const key in game){
-                console.log(key+":",logger.brandColor(game[key]));
+                if(key==="rating"){
+                    const rating=parseFloat(game.rating);
+                    const ratingTextColor=(()=>{
+                        if(rating>16) return logger.green;
+                        else if(rating<14) return logger.red;
+                        else return logger.yellow;
+                    })();
+                    console.log(key+":",ratingTextColor(game.rating));
+                } else {
+                    console.log(key+":",logger.majorColor(game[key]));
+                }
             }
         }
         if(Array.isArray(offers)&&offers.length){

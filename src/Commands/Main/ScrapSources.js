@@ -2,15 +2,13 @@
 const sources=require("./Registry");
 const puppeteer=require("puppeteer");
 const {loading}=require("../../Scripts");
-const Path=require("node:path");
-const FileSystem=require("node:fs");
 const isQueryMatch=require("../../Functions/isQueryMatch");
 const simplifyString=require("../../Functions/simplifyString");
 const scrapForDetails=require("./ScrapForDetails");
 
 
 module.exports=async (query,options)=>{
-    const {withGUI,cachePath}=options;
+    const {withGUI}=options;
     let scrapedSourceCount=0;
     const browser=await puppeteer.launch({
         devtools:withGUI,
@@ -63,17 +61,12 @@ module.exports=async (query,options)=>{
     });
     if(results.length) return new Promise((resolve,reject)=>{
         results.forEach(result=>{
-            result.price=result.price.replace(",000","");
+            const {price}=result;
+            result.price=simplifyPrice(price);
         });
         results.sort((b,a)=>parseFloat(a.price)<parseFloat(b.price)?1:-1);
         const data={...details,results};
-        FileSystem.writeFile(Path.join(cachePath,query+".json"),JSON.stringify({
-            query,data,
-            instant:Date.now(),
-        }),(error)=>{
-            if(error) reject(error);
-            else resolve(data);
-        });
+        resolve(data);
     });
     else if(details) return details;
     else return null;
@@ -85,4 +78,14 @@ const isExistingResult=(result,results)=>{
         simplifyString(it.title)===simplifyString(title)&&
         (it.price)===price
     ));
+}
+
+const simplifyPrice=(price)=>{
+    price=simplifyString(price.replace(",000",""));
+    const matches=price.match(/^([0-9]+ *)+/g);
+    if(matches){
+        const currency=price.match(/\D+$/g,"")?.[0].trim()||"";
+        price=matches[0].replace(/\D/g,"")+" "+currency.toUpperCase();
+    }
+    return price;
 }
