@@ -1,8 +1,8 @@
 
-const scrapper=require("../Scrapper");
+const getScraperDetails=require("../getScraperDetails");
 
 module.exports=async (browser,query)=>{
-    const {source}=await scrapper(browser,__filename);
+    const {source}=await getScraperDetails(__filename);
     const webpage=await browser.newPage(source.url);
     await webpage.locator("#search_widget input").fill(query);
     await webpage.locator("#search_widget button[type=submit]").click();

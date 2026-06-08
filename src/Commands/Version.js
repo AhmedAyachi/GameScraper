@@ -1,6 +1,10 @@
 
 const pkgjson=require("../../package.json");
+const {logger}=require("../Scripts");
 
 module.exports=async ()=>{
-    console.log(pkgjson.name.replace(/-/g,""),"v"+pkgjson.version);
+    logger.log(
+        logger.brandColor(pkgjson.name.replace(/-/g,""))+
+        " "+logger.majorColor("v"+pkgjson.version),
+    );
 }

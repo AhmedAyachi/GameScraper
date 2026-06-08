@@ -1,10 +1,10 @@
 
 const sources=require("./Registry");
 const puppeteer=require("puppeteer");
-const {loading}=require("../../Scripts");
-const isQueryMatch=require("../../Functions/isQueryMatch");
-const simplifyString=require("../../Functions/simplifyString");
-const scrapForDetails=require("./ScrapForDetails");
+const {loading,logger}=require("../../Scripts");
+const {simplifyString,isQueryMatch}=require("../../Functions");
+const scrapForDetails=require("./scrapForDetails");
+const customUA="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36";
 
 
 module.exports=async (query,options)=>{
@@ -16,23 +16,40 @@ module.exports=async (query,options)=>{
         args:[
             "--no-sandbox",
             "--disable-setuid-sandbox",
-            "--disable-dev-shm-usage", // Prevents crashes in Docker/low-RAM envs
+            "--disable-dev-shm-usage", //Prevents crashes in Docker/low-RAM envs
             "--disable-accelerated-2d-canvas",
-            "--disable-gpu",           // Skips hardware acceleration overhead
+            "--disable-gpu", //Skips hardware acceleration overhead
             "--no-first-run",
             "--no-zygote",
-            "--single-process",      // Saves significant memory (use with caution)
+            "--single-process", //Saves significant memory (use with caution)
             "--window-size=1920,1080",
         ],
     });
+    browser.newPage=(()=>{
+        const newPage=browser.newPage.bind(browser);
+        return async (url,options)=>{
+            const webpage=await newPage();
+            await webpage.setUserAgent(customUA);
+            await webpage.setViewport({width:1080,height:1024});
+            if(url) await webpage.goto(url,{
+                waitUntil:"domcontentloaded",
+                ...options,
+            });
+            return webpage;
+        }
+    })();
     const details=await scrapForDetails(browser,query);
     const allResults=[];
     for(const source of sources){
         loading(`Scraping sources ${scrapedSourceCount}/${sources.length}...`);
         try {
-            const {name}=source;
-            const scrapper=require(`./Sources/${name.trim().replace(/ /g,"")}`);
-            const sourceResults=await scrapper(browser,query).catch(()=>scrapper(browser,query));
+            const {name,type}=source;
+            const scrapper=require(`./SrcScrapers/${name.trim().replace(/ /g,"")}`);
+            const sourceQuery=(gameTitle=>{
+                if((type==="facebookPage")&&gameTitle) return simplifyString(gameTitle);
+                else return query;
+            })(details?.game?.title);
+            const sourceResults=await scrapper(browser,sourceQuery).catch(()=>scrapper(browser,query));
             sourceResults.forEach(result=>{
                 result.sourceName=name;
             });
@@ -40,7 +57,7 @@ module.exports=async (query,options)=>{
         } catch(error){
             loading();
             if(withGUI) console.error(error);
-            else console.error(`Error while scraping ${source.url}.`);
+            else logger.logWithFailure(`Error while scraping ${source.url}.`);
             loading(true);
         }
         scrapedSourceCount++;

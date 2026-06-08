@@ -1,6 +1,6 @@
 
 
 module.exports={
-    version:require("./Version"),
-    scrapQuery:require("./Main/ScrapQuery"),
+    version:require("./version"),
+    scrapQuery:require("./Main/scrapQuery"),
 }

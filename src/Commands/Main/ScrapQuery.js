@@ -1,7 +1,7 @@
 
 
-const fetchFromCache=require("./FetchFromCache");
-const scrapSources=require("./ScrapSources");
+const fetchFromCache=require("./fetchFromCache");
+const scrapSources=require("./scrapSources");
 const sources=require("./Registry");
 const terminalLink=require("terminal-link").default;
 const simplifyString=require("../../Functions/simplifyString");

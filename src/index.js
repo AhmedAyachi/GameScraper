@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 "use strict";
 
-
+const {logger}=require("./Scripts/index");
 const commands=require("./Commands/index");
 
 
@@ -21,8 +21,6 @@ new Promise((resolve,reject)=>{
     }
     
 }).catch(error=>{
-    if(error){
-        console.error(error);
-    }
+    if(error) logger.logWithFailure(error.message);
     process.exit(1);
 });

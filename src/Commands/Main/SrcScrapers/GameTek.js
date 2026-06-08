@@ -1,8 +1,8 @@
 
-const scrapper=require("../Scrapper");
+const getScraperDetails=require("../getScraperDetails");
 
 module.exports=async (browser,query)=>{
-    const {source}=await scrapper(browser,__filename);
+    const {source}=await getScraperDetails(__filename);
     const webpage=await browser.newPage(source.url);
     await webpage.locator("header input[class*=search]").fill(query);
     await webpage.waitForSelector("*[class*=search__result]>*:first-child",{timeout:5000});

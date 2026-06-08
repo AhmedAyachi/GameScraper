@@ -1,13 +1,13 @@
 
-const scrapper=require("../Scrapper");
+const getScraperDetails=require("../getScraperDetails");
 
 module.exports=async (browser,query)=>{
-    const {source}=await scrapper(browser,__filename);
+    const {source}=await getScraperDetails(__filename);
     const webpage=await browser.newPage(source.url);
     await webpage.locator("header input[class*=search]").fill(query);
     await webpage.locator("header button[type=submit]").click();
     await webpage.waitForNavigation({waitUntil:"domcontentloaded"});
-    const gameElHandles=await webpage.$$(".product-container");
+    const gameElHandles=await webpage.$$("#js-product-list *[class*=itemproduct]");
     const results=[];
     for(const elHandle of gameElHandles){
         const title=await elHandle.evaluate(it=>it.querySelector("*[class*=product-title] a").textContent);
@@ -15,7 +15,7 @@ module.exports=async (browser,query)=>{
             return it.querySelector("*[class*=product-price] .price").textContent;
         });
         results.push({
-            title:title,
+            title:title.trim(),
             price:priceText.trim(),
         });
     }

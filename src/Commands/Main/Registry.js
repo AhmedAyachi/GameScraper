@@ -2,6 +2,11 @@
 
 module.exports=[
     {
+        name:"Geek Zone",
+        url:"https://www.facebook.com/GeekZone.PageOfficielle",
+        type:"facebookPage",
+    },
+    {
         name:"Dopamine",
         url:"https://dopamine.tn/",
     },
