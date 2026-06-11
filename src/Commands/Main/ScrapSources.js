@@ -63,11 +63,11 @@ module.exports=async (query,options)=>{
     const results=[];
     const includeControllers=query.includes("manet");
     allResults.forEach(result=>{
-        const title=simplifyString(result.title);
+        const {title}=result;
         if(
             isQueryMatch(title,query)&&
             !isExistingResult(result,results)&&
-            (includeControllers||!title.includes("manet")
+            (includeControllers||!simplifyString(title).includes("manet")
         )){
             results.push(result);
         }
@@ -95,8 +95,9 @@ const isExistingResult=(result,results)=>{
 
 const simplifyTitle=(title,query)=>{
     title=cleanString(title);
+    const simplifiedTitle=simplifyString(title);
     const wordIndices=query.split(" ").map(it=>{
-        return title.match(new RegExp(it,"i"))?.index;
+        return simplifiedTitle.match(new RegExp(it,"i"))?.index;
     });
     const maxIndex=Math.max(...wordIndices);
     return title.substring(0,maxIndex+40);
