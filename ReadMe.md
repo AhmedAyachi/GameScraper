@@ -24,3 +24,7 @@ GameScraper will search the registered sources for games with the query: "tsushi
 GameScraper will also check the game on jeuxvideo.com to give you an idea about the pricing in general. 
 
 ![Basic Usage Result Screenshot](https://raw.githubusercontent.com/AhmedAyachi/RepoIllustrations/refs/heads/main/GameScraper/BasicUsageResultScreenshot.png)
+
+| Flag | Description |
+|------|-------------|
+| \-\-skip-cache | skips cached results and forces rescraping |
