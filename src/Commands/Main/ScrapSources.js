@@ -99,7 +99,6 @@ const simplifyTitle=(title,query)=>{
         return title.match(new RegExp(it,"i"))?.index;
     });
     const maxIndex=Math.max(...wordIndices);
-    console.log({wordIndices,maxIndex});
     return title.substring(0,maxIndex+40);
 }
 
