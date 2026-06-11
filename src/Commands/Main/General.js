@@ -1,10 +1,17 @@
 
+module.exports.platforms=[
+    {id:22,name:"ps5"},
+    {id:20,name:"ps4"},
+    {id:10,name:"pc"},
+];
 
-module.exports=[
+module.exports.sources=[
     {
         name:"Geek Zone",
-        url:"https://www.facebook.com/GeekZone.PageOfficielle",
-        type:"facebookPage",
+        urls:[
+            "https://www.facebook.com/GeekZone.PageOfficielle",
+            "https://www.tayara.tn/user/2b6d9d0c-48d8-4b4a-8145-52fbf7b95b8e/",
+        ],
     },
     {
         name:"Dopamine",

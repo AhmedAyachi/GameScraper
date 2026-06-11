@@ -1,36 +1,31 @@
 
 
-const fetchFromCache=require("./fetchFromCache");
 const scrapSources=require("./scrapSources");
-const sources=require("./Registry");
+const {sources}=require("./General");
 const terminalLink=require("terminal-link").default;
-const simplifyString=require("../../Functions/simplifyString");
+const {simplifyString}=require("../../Functions");
 const Path=require("node:path");
 const FileSystem=require("node:fs");
 const {logger}=require("../../Scripts");
+const Cache=require("../../Cache");
 
 
 module.exports=(args)=>new Promise(async (resolve,reject)=>{
     const query=simplifyString(args[0]);
     const skipCache=args.some(it=>it==="--skip-cache");
-    const cachePath=Path.resolve(__dirname,"./Cache");
-    if(!FileSystem.existsSync(cachePath)) FileSystem.mkdirSync(cachePath);
-
-    const results=(!skipCache)&&(await fetchFromCache(query,{cachePath}));
+    const results=(!skipCache)&&(await Cache.get(query));
     if(results) resolve(results);
     else resolve(scrapSources(query,{
         withGUI:args.some(arg=>arg==="--gui"),
-    }).then(data=>new Promise((resolve,reject)=>{
-        if(data){
-            FileSystem.writeFile(Path.join(cachePath,query+".json"),JSON.stringify({
-                query,data,
-                instant:Date.now(),
-            }),(error)=>{
-                if(error) reject(error);
-                else resolve(data);
-            });
-        } else resolve(data);
-    })));
+    }).then(async (data)=>{
+        try {
+            await Cache.set(query,data);
+        }
+        catch(error){
+            logger.logWithFailure("Failed to cache results.");
+        }
+        return data;
+    }));
 }).then(data=>{
     if(data){
         const {game,offers,results}=data;

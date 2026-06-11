@@ -2,11 +2,7 @@
 const {loading,logger}=require("../../Scripts");
 const {TimeoutError} = require("puppeteer");
 const baseUrl="jeuxvideo.com";
-const platforms=[
-    {id:22,name:"ps5"},
-    {id:20,name:"ps4"},
-    {id:10,name:"pc"},
-];
+const {platforms}=require("./General");
 
 module.exports=async function scrapForDetails(browser,query,options){
     loading(`Checking ${baseUrl} for details...`);

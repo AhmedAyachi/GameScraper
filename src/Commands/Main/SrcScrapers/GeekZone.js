@@ -1,9 +1,15 @@
 
 const getScraperDetails=require("../getScraperDetails");
-const {scrapFbPage}=require("../SrcTypeScrapers");
+const {scrapFbPage,scrapTayaraPage}=require("../SrcTypeScrapers");
 
 module.exports=async (browser,query)=>{
     const {source}=await getScraperDetails(__filename);
-    const {data}=await scrapFbPage(browser,source.url,query);
-    return data;
+    const [facebookUrl,tayaraUrl]=source.urls;
+    const data=[];
+    return scrapFbPage(browser,facebookUrl,query).then(it=>{
+        data.push(...it.data);
+    }).catch(()=>{}).then(()=>scrapTayaraPage(browser,tayaraUrl,query)).then(it=>{
+        data.push(...it.data);
+        return data;
+    });
 }

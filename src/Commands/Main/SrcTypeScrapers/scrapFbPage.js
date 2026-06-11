@@ -3,7 +3,7 @@
 const seeMoreContainerClasses=["__fb-light-mode","x1n2onr6","xzkaem6"];
 const postContainerClasses=["x9f619","x1n2onr6","x1ja2u2z","xeuugli","x19h7ccj"];
 const postBodyContainerClasses=["html-div","xdj266r","x14z9mp","xat24cr","x1lziwak"];
-const minPostCount=20,maxAttemptCount=2;
+const minPostCount=20,maxReattemptCount=2;
 const {sleep,isQueryMatch}=require("../../../Functions");
 
 module.exports=async (browser,url,query)=>{
@@ -20,7 +20,7 @@ module.exports=async (browser,url,query)=>{
     return {webpage,data};
 }
 
-const fetchPostHandlers=async (webpage,postContainerHandler,{postCount=0,attemptCount=0}={})=>{
+const fetchPostHandlers=async (webpage,postContainerHandler,{postCount=0,reattemptCount=0}={})=>{
     await sleep(3000);
     await webpage.$eval(`${seeMoreContainerClasses.map(it=>`[class~="${it}"]`).join("")}`,(seeMoreEl=>{
         seeMoreEl.remove();
@@ -33,10 +33,13 @@ const fetchPostHandlers=async (webpage,postContainerHandler,{postCount=0,attempt
     });
     const postHandlers=await postContainerHandler.$$(`:scope>div:not([class])`);
     const currentPostCount=postHandlers.length;
-    if((attemptCount<maxAttemptCount)&&(currentPostCount<minPostCount)){
-        if(currentPostCount===postCount) attemptCount++;
-        else postCount=currentPostCount;
-        return fetchPostHandlers(webpage,postContainerHandler,{attemptCount,postCount});
+    if((reattemptCount<maxReattemptCount)&&(currentPostCount<minPostCount)){
+        if(currentPostCount===postCount) reattemptCount++;
+        else{
+            postCount=currentPostCount;
+            reattemptCount=0;
+        }
+        return fetchPostHandlers(webpage,postContainerHandler,{reattemptCount,postCount});
     }
     else return postHandlers;
 }
@@ -53,18 +56,12 @@ const getPostBody=async (handler)=>{
     } else return "";
 }
 
-/* const getTextToJsonPrompt=(postBodies)=>[
-    "get the name of the game and price for each item",
-    "and only reply with the json format from the current text array:",
-    JSON.stringify(postBodies),
-].join(" "); */
-
 const getPostBodiesData=(query,postBodies)=>{
     const data=[];
     for(const body of postBodies){
         if(isQueryMatch(body,query)){
             data.push({
-                title:getGameTitleFromText(query,body),
+                title:getTitleFromText(query,body),
                 price:getPriceFromText(query,body),
             });
         }
@@ -72,7 +69,7 @@ const getPostBodiesData=(query,postBodies)=>{
     return data;
 }
 
-const getGameTitleFromText=(query,text)=>{
+const getTitleFromText=(query,text)=>{
     return query;
 }
 

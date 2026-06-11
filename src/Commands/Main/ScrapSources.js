@@ -1,8 +1,8 @@
 
-const sources=require("./Registry");
+const {sources,platforms}=require("./General");
 const puppeteer=require("puppeteer");
 const {loading,logger}=require("../../Scripts");
-const {simplifyString,isQueryMatch}=require("../../Functions");
+const {simplifyString,cleanString,isQueryMatch}=require("../../Functions");
 const scrapForDetails=require("./scrapForDetails");
 const customUA="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36";
 
@@ -45,11 +45,7 @@ module.exports=async (query,options)=>{
         try {
             const {name,type}=source;
             const scrapper=require(`./SrcScrapers/${name.trim().replace(/ /g,"")}`);
-            const sourceQuery=(gameTitle=>{
-                if((type==="facebookPage")&&gameTitle) return simplifyString(gameTitle);
-                else return query;
-            })(details?.game?.title);
-            const sourceResults=await scrapper(browser,sourceQuery).catch(()=>scrapper(browser,query));
+            const sourceResults=await scrapper(browser,query).catch(()=>scrapper(browser,query));
             sourceResults.forEach(result=>{
                 result.sourceName=name;
             });
@@ -57,7 +53,7 @@ module.exports=async (query,options)=>{
         } catch(error){
             loading();
             if(withGUI) console.error(error);
-            else logger.logWithFailure(`Error while scraping ${source.url}.`);
+            else logger.logWithFailure(`Error while scraping ${source.name}.`);
             loading(true);
         }
         scrapedSourceCount++;
@@ -78,8 +74,8 @@ module.exports=async (query,options)=>{
     });
     if(results.length) return new Promise((resolve,reject)=>{
         results.forEach(result=>{
-            const {price}=result;
-            result.price=simplifyPrice(price);
+            result.title=simplifyTitle(result.title,query);
+            result.price=simplifyPrice(result.price);
         });
         results.sort((b,a)=>parseFloat(a.price)<parseFloat(b.price)?1:-1);
         const data={...details,results};
@@ -95,6 +91,16 @@ const isExistingResult=(result,results)=>{
         simplifyString(it.title)===simplifyString(title)&&
         (it.price)===price
     ));
+}
+
+const simplifyTitle=(title,query)=>{
+    title=cleanString(title);
+    const wordIndices=query.split(" ").map(it=>{
+        return title.match(new RegExp(it,"i"))?.index;
+    });
+    const maxIndex=Math.max(...wordIndices);
+    console.log({wordIndices,maxIndex});
+    return title.substring(0,maxIndex+40);
 }
 
 const simplifyPrice=(price)=>{
