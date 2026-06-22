@@ -105,10 +105,12 @@ const simplifyTitle=(title,query)=>{
 
 const simplifyPrice=(price)=>{
     price=simplifyString(price.replace(",000",""));
-    const matches=price.match(/^([0-9]+ *)+/g);
-    if(matches){
-        const currency=price.match(/\D+$/g,"")?.[0].trim()||"";
-        price=matches[0].replace(/\D/g,"")+" "+currency.toUpperCase();
+    const match=price.match(/^([0-9]+ *)+/)?.[0];
+    if(match){
+        let currency=price.match(/\D+$/g,"")?.[0].trim()||"";
+        const spaceIndex=currency.indexOf(" ");
+        if(spaceIndex>0) currency=currency.substring(0,spaceIndex);
+        price=match.replace(/\D/g,"")+" "+currency.toUpperCase();
     }
     return price;
 }

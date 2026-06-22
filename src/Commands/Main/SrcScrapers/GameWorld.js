@@ -11,11 +11,8 @@ module.exports=async (browser,query)=>{
     const results=[];
     for(const elHandle of gameElHandles){
         const title=await elHandle.evaluate(it=>it.querySelector(".name a").textContent);
-        const priceText=await elHandle.evaluate(it=>it.querySelector(".price").textContent);
-        results.push({
-            title:title.replace(/ \-\.\.\.|\.\.\./gi,""),
-            price:(it=>it.substring(0,it.indexOf("\n")))(priceText.trim()),
-        });
+        const price=await elHandle.evaluate(it=>it.querySelector(".price").textContent);
+        results.push({title,price});
     }
     return results;
 }
